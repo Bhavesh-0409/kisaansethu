@@ -10,21 +10,22 @@ app.use(express.json());
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-if (!GEMINI_API_KEY) {
-  console.error("Missing ❌ GEMINI_API_KEY in .env file");
+if (!GEMINI_API_KEY || GEMINI_API_KEY === "PASTE_YOUR_NEW_API_KEY_HERE") {
+  console.error("Missing ❌ GEMINI_API_KEY in .env file, or it's still a placeholder!");
 } else {
   console.log("Gemini API Key: Loaded ✅");
 }
 
 app.post("/api/crop-advice", async (req, res) => {
-  if (!GEMINI_API_KEY) {
-    return res.status(500).json({ error: "Server is missing API key" });
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === "PASTE_YOUR_NEW_API_KEY_HERE") {
+    return res.status(500).json({ error: "Server is missing a valid API key" });
   }
 
   try {
     const { prompt } = req.body;
 
-    // Updated to use the recommended gemini-2.5-flash-preview-09-2025 model
+    // This is the correct model name.
+    // Your server is running old code if it mentions 'gemini-1.5-flash'.
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`;
 
     const response = await fetch(apiUrl, {
@@ -36,14 +37,14 @@ app.post("/api/crop-advice", async (req, res) => {
     });
 
     if (!response.ok) {
-      // Log more detail if the API request itself fails
+      // This will log the error from Google
       const errorData = await response.json();
       console.error("Gemini API error response:", errorData);
       throw new Error(`API request failed with status ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("Gemini API response:", data);
+    console.log("Gemini API response (Success):", data);
     res.json(data);
   } catch (error) {
     console.error("Gemini API error:", error.message);
